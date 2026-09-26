@@ -1,0 +1,12 @@
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# dado de referencia baixado via scripts/fetch_reference.py
+data/reference/municipios_ibge.csv
+
+# dados brutos das fontes (grandes demais para versionar)
+data/raw/
+*.zip
