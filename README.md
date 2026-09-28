@@ -33,7 +33,7 @@ O gatilho chegou.
 |---|---|
 | INMET 2025 | 594 estacoes, **5.025.594 linhas**, 359 MB |
 | INMET 2023 | 567 estacoes, 415 MB |
-| IBGE | 5.570 municipios com coordenadas |
+| IBGE | 5.570 municipios com coordenadas (mais o distrito estadual de Fernando de Noronha, 5.571 linhas) |
 | CETESB via OpenAQ | 3.993 medicoes horarias (jan-abr/2023) |
 
 ## Os achados
@@ -46,9 +46,11 @@ apontam para mais de um municipio, afetando 521 registros:
 nome**. "Bom Jesus" existe em 5 estados.
 
 **2. O dado oficial do IBGE e inconsistente consigo mesmo.**
-17 municipios grafam `D'Oeste`, 29 grafam `d'Oeste`.
+A mesma contracao aparece com as duas caixas: 17 nomes usam `D'`
+e 29 usam `d'` (`D'Água`/`d'Água`, `D'Arco`/`d'Arco`). So com
+`Oeste`, sao 13 `D'Oeste` contra 12 `d'Oeste`.
 
-**3. Remover acento introduz 9 erros novos.** `Aracoiaba` (CE) e
+**3. Remover acento introduz 8 erros novos.** `Aracoiaba` (CE) e
 `Araçoiaba` (PE) sao municipios distintos que viram a mesma chave.
 `Iporá` (GO) e `Iporã` (PR) tambem. A correcao obvia cria o bug.
 
