@@ -115,6 +115,16 @@ def test_nome_inexistente_nao_e_inventado(resolver):
     assert not r.resolved
 
 
+def test_uf_informada_nunca_e_ignorada(resolver):
+    # A estacao SAO GONCALO do INMET fica na Paraiba, onde nao existe
+    # municipio com esse nome. O unico Sao Goncalo do pais e do RJ, e
+    # com a UF informada ele nao pode ser devolvido.
+    r = resolver.resolve(name="SAO GONCALO", uf="25")
+    assert r.strategy is MatchStrategy.UNRESOLVED_NOT_FOUND
+    assert r.municipio is None
+    assert resolver.resolve(name="SAO GONCALO").municipio.codigo_uf == "33"
+
+
 # --- Achado 1: nome nao e chave ---------------------------------------------
 
 
