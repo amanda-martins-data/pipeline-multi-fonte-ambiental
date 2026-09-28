@@ -54,9 +54,13 @@ e 29 usam `d'` (`D'Água`/`d'Água`, `D'Arco`/`d'Arco`). So com
 `Araçoiaba` (PE) sao municipios distintos que viram a mesma chave.
 `Iporá` (GO) e `Iporã` (PR) tambem. A correcao obvia cria o bug.
 
-**4. 89,9% das estacoes INMET resolvem por nome; 59 falham** - e as
+**4. 89,9% das estacoes INMET resolvem por nome; 60 falham** - e as
 falhas tem padrao: sufixo de bairro, parentetico, abreviacao,
 grafia divergente, e estacoes que nao ficam em sede municipal.
+Uma delas quase passou errada: `SAO GONCALO` (PB) nao existe como
+municipio na Paraiba, e o resolver chegou a devolver Sao Goncalo
+(RJ), a 1.850 km. Hoje, com a UF informada, ele nunca procura fora
+dela.
 
 **5. Coordenada resolve parte, mas erra em regiao metropolitana.**
 `RIO DE JANEIRO - VILA MILITAR` e atribuido a Nilopolis a 6,3 km,
