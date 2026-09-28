@@ -194,7 +194,11 @@ class MunicipioResolver:
 
         # Camada 5: nome normalizado sem UF - so vale se for unico
         # no pais inteiro. Para 241 nomes isso nao acontece.
-        if name is not None:
+        # So roda quando a UF NAO foi informada: se a UF veio e o nome
+        # nao existe nela, procurar no pais inteiro contradiz a
+        # evidencia. Sem essa guarda, a estacao SAO GONCALO (PB) do
+        # INMET era resolvida para Sao Goncalo (RJ).
+        if name is not None and not norm_uf:
             candidates = self._by_norm_name.get(normalize_name(name), [])
             if len(candidates) == 1:
                 return Resolution(
