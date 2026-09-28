@@ -4,15 +4,17 @@ municipio_resolver.py
 Resolve referencias a municipios brasileiros vindas de fontes
 heterogeneas para o codigo IBGE canonico de 7 digitos.
 
-O problema, medido sobre a tabela oficial do IBGE (5.570 municipios,
-ver data/reference/municipios_ibge.csv):
+O problema, medido sobre a tabela oficial do IBGE (5.570 municipios
+mais o distrito estadual de Fernando de Noronha, ver
+data/reference/municipios_ibge.csv):
 
 - 241 nomes normalizados apontam para mais de um municipio, afetando
   521 registros - ou seja, 9,4% dos municipios brasileiros sao
   INALCANCAVEIS apenas pelo nome. "Bom Jesus" existe em 5 estados.
-- O proprio dado oficial e inconsistente: 17 nomes usam "D'Oeste"
-  com D maiusculo e 29 usam "d'Oeste" com d minusculo.
-- Remover acentos, que parece a correcao obvia, INTRODUZ 9 colisoes
+- O proprio dado oficial e inconsistente: 17 nomes usam a contracao
+  "D'" com D maiusculo e 29 usam "d'" com d minusculo ("D'Oeste" e
+  "d'Oeste", "D'Agua" e "d'Agua"). So com "Oeste", 13 contra 12.
+- Remover acentos, que parece a correcao obvia, INTRODUZ 8 colisoes
   novas: "Araçoiaba" e "Aracoiaba" sao municipios diferentes que
   viram a mesma chave, assim como "Iporá" e "Iporã".
 
