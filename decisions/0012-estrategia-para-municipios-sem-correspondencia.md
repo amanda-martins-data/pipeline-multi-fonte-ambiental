@@ -1,116 +1,60 @@
-# ADR 0012: Tratar coordenada como evidencia auxiliar e mandar os nao resolvidos para quarentena
+# ADR 0012: Tratar coordenada como evidência auxiliar e mandar os não resolvidos para quarentena
 
 ## Status
 
-Aceita (quarentena ainda nao implementada no pipeline - ver
-Consequencias)
+Aceita (quarentena ainda não implementada no pipeline; ver Consequências)
 
 ## Contexto
 
-A ADR 0011 definiu o codigo IBGE como chave da dimensao municipio e o
-nome + UF como caminho para chegar a ele. Aplicado as 594 estacoes do
-INMET de 2025, esse caminho resolve 534 (89,9%) e deixa 60 sem
-municipio:
+A ADR 0011 definiu o código IBGE como chave da dimensão município e o nome + UF como caminho para chegar a ele. Aplicado às 594 estações do INMET de 2025, esse caminho resolve 534 (89,9%) e deixa 60 sem município:
 
-- 33 sao nome de municipio com sufixo de bairro ou local
-  (`PORTO ALEGRE - BELEM NOVO`, `SAO PAULO - MIRANTE`);
-- 3 sao abreviacoes (`MAL. CANDIDO RONDON`);
-- 4 tem grafia divergente do IBGE (`ARCO VERDE`, `SANTANA DO
-  LIVRAMENTO`);
-- 20 sao locais que nao sao sede municipal (`PICO DO COUTO`,
-  `ABROLHOS`, regioes administrativas do DF).
+- 33 são nome de município com sufixo de bairro ou local (`PORTO ALEGRE - BELEM NOVO`, `SAO PAULO - MIRANTE`);
+- 3 são abreviações (`MAL. CANDIDO RONDON`);
+- 4 têm grafia divergente do IBGE (`ARCO VERDE`, `SANTANA DO LIVRAMENTO`);
+- 20 são locais que não são sede municipal (`PICO DO COUTO`, `ABROLHOS`, regiões administrativas do DF).
 
-Toda estacao do INMET traz latitude e longitude no cabecalho do
-arquivo. A tentacao obvia e usar a coordenada para resolver as 60:
-atribuir o municipio de centroide mais proximo.
+Toda estação do INMET traz latitude e longitude no cabeçalho do arquivo. A tentação óbvia é usar a coordenada para resolver as 60, atribuindo o município de centroide mais próximo.
 
-Essa tentativa foi medida, e erra onde as estacoes mais se
-concentram:
+Medi essa tentativa, e ela erra onde as estações mais se concentram:
 
-| Estacao | Municipio correto | Centroide mais proximo |
+| Estação | Município correto | Centroide mais próximo |
 |---|---|---|
-| `RIO DE JANEIRO - VILA MILITAR` | Rio de Janeiro (centroide a 22,4 km) | Nilopolis, a 6,3 km |
-| `PORTO ALEGRE - BELEM NOVO` | Porto Alegre (centroide a 17,4 km, o terceiro mais proximo) | Guaiba, a 16,4 km |
-| `SAO GONCALO` (PB) | nao confirmado | Marizopolis, a 4,6 km |
+| `RIO DE JANEIRO - VILA MILITAR` | Rio de Janeiro (centroide a 22,4 km) | Nilópolis, a 6,3 km |
+| `PORTO ALEGRE - BELEM NOVO` | Porto Alegre (centroide a 17,4 km, o terceiro mais próximo) | Guaíba, a 16,4 km |
+| `SAO GONCALO` (PB) | não confirmado | Marizópolis, a 4,6 km |
 
-O motivo e geometrico: o centroide de um municipio grande fica longe
-das suas bordas. Uma estacao na zona oeste do Rio de Janeiro esta mais
-perto do centro de Nilopolis, um municipio pequeno e vizinho, do que
-do centro do Rio. Comparar com o centroide nao diz se o ponto esta
-dentro do poligono do municipio.
+O motivo é geométrico: o centroide de um município grande fica longe das suas bordas. Uma estação na zona oeste do Rio de Janeiro está mais perto do centro de Nilópolis, um município pequeno e vizinho, do que do centro do Rio. Comparar com o centroide ignora o formato do polígono e não diz se o ponto está dentro do município.
 
-## Opcoes consideradas
+## Opções consideradas
 
-### Opcao A - Coordenada como criterio decisivo (centroide mais proximo)
-- Pros: resolve 100% das estacoes, sem trabalho manual; usa um dado
-  que ja esta no arquivo.
-- Contras: erra em silencio exatamente nas capitais e regioes
-  metropolitanas, onde esta a maior parte das estacoes urbanas e dos
-  dados de qualidade do ar. Contradiz o criterio da ADR 0011 de que um
-  erro silencioso e pior que uma falha visivel.
+### Opção A - Coordenada como critério decisivo (centroide mais próximo)
+- Prós: resolve 100% das estações, sem trabalho manual, usando um dado que já está no arquivo.
+- Contras: erra em silêncio justamente nas capitais e regiões metropolitanas, onde está a maior parte das estações urbanas e dos dados de qualidade do ar. Contradiz o critério da ADR 0011 de que um erro silencioso é pior que uma falha visível.
 
-### Opcao B - Coordenada como evidencia auxiliar, com quarentena
-- Pros: a coordenada confirma uma hipotese vinda do nome (o prefixo
-  `PORTO ALEGRE` e o municipio de Porto Alegre estao a menos de um
-  limiar de distancia), em vez de gerar a hipotese sozinha. O que nao
-  se confirma vai para uma tabela de quarentena explicita, com o
-  motivo.
-- Contras: nao resolve tudo. Exige manter a quarentena e revisar os
-  casos que ficam nela. O limiar de distancia e um parametro a mais
-  para justificar.
+### Opção B - Coordenada como evidência auxiliar, com quarentena
+- Prós: a coordenada confirma uma hipótese vinda do nome (o prefixo `PORTO ALEGRE` e o município de Porto Alegre estão a menos de um limiar de distância), e o nome continua sendo a fonte da hipótese. O que não se confirma vai para uma tabela de quarentena explícita, com o motivo.
+- Contras: não resolve tudo. Exige manter a quarentena e revisar os casos que ficam nela. O limiar de distância é um parâmetro a mais para justificar.
 
-### Opcao C - Descartar as estacoes nao resolvidas
-- Pros: simples; a Gold so recebe o que casou.
-- Contras: perde 10% das estacoes sem registro de por que, incluindo
-  as duas da cidade de Sao Paulo (`SAO PAULO - MIRANTE` e `SAO PAULO -
-  INTERLAGOS`), a mesma cidade da estacao da CETESB usada neste projeto
-  (Cerqueira Cesar). Descartar as duas deixaria o cruzamento sem
-  nenhuma estacao do INMET dentro da cidade.
+### Opção C - Descartar as estações não resolvidas
+- Prós: simples, e a Gold só recebe o que casou.
+- Contras: perde 10% das estações sem registro do motivo, incluindo as duas da cidade de São Paulo (`SAO PAULO - MIRANTE` e `SAO PAULO - INTERLAGOS`), a mesma cidade da estação da CETESB usada neste projeto (Cerqueira César). Descartar as duas deixaria o cruzamento sem nenhuma estação do INMET dentro da cidade.
 
-### Opcao D - Ponto no poligono, com a malha territorial do IBGE
-- Pros: resolve a causa do erro; uma estacao dentro do poligono do
-  Rio de Janeiro e do Rio de Janeiro, sem ambiguidade.
-- Contras: exige a malha municipal do IBGE (arquivo geografico, bem
-  maior que a tabela de municipios) e uma dependencia geoespacial.
-  Desproporcional para o volume atual de 60 estacoes.
+### Opção D - Ponto no polígono, com a malha territorial do IBGE
+- Prós: resolve a causa do erro. Uma estação dentro do polígono do Rio de Janeiro é do Rio de Janeiro, sem ambiguidade.
+- Contras: exige a malha municipal do IBGE (arquivo geográfico bem maior que a tabela de municípios) e uma dependência geoespacial. É desproporcional para o volume atual de 60 estações.
 
-## Decisao
+## Decisão
 
-Opcao B. A coordenada entra como evidencia auxiliar: ela pode
-confirmar um municipio proposto pelo nome (por exemplo, pelo maior
-prefixo do nome que casa com um municipio da UF), se o centroide desse
-municipio estiver dentro de um limiar de distancia. Ela nunca propoe
-um municipio sozinha. O que nao se confirma vai para uma tabela de
-quarentena com a estacao, o motivo e os candidatos.
+Escolhi a Opção B. A coordenada entra como evidência auxiliar: ela pode confirmar um município proposto pelo nome (por exemplo, pelo maior prefixo do nome que casa com um município da UF), se o centroide desse município estiver dentro de um limiar de distância. A hipótese sempre nasce do nome. O que não se confirma vai para uma tabela de quarentena com a estação, o motivo e os candidatos.
 
-O criterio de desempate entre B e D foi proporcionalidade. D e a
-resposta correta para o problema geometrico, mas custa uma dependencia
-nova para resolver 60 linhas de referencia, que mudam raramente. B
-aceita deixar alguns casos em quarentena e revisados a mao em troca de
-nao adicionar essa dependencia agora. A e C foram descartadas pelo
-mesmo motivo da ADR 0011: erram ou perdem dados sem sinal.
+O critério de desempate entre B e D foi a proporcionalidade. D é a resposta correta para o problema geométrico, e custa uma dependência nova para resolver 60 linhas de referência que mudam raramente. Com B, aceito deixar alguns casos em quarentena para revisão manual e evito essa dependência agora. Descartei A e C pelo mesmo motivo da ADR 0011: elas erram ou perdem dados sem sinal.
 
-## Consequencias
+## Consequências
 
-Alguns casos continuam sem municipio e dependem de revisao manual. Os
-20 locais que nao sao sede municipal (parques, serras, farois,
-regioes do DF) sao os candidatos mais provaveis a ficar na quarentena.
+Alguns casos continuam sem município e dependem de revisão manual. Os 20 locais que não são sede municipal (parques, serras, faróis, regiões do DF) são os candidatos mais prováveis a ficar na quarentena.
 
-A quarentena ainda nao esta implementada no pipeline; hoje o resolver
-devolve `UNRESOLVED_NOT_FOUND` ou `UNRESOLVED_AMBIGUOUS`, e o destino
-desses registros fica para a camada de transformacao
-(`src/transform/`, adiada).
+A quarentena ainda não está implementada no pipeline. Hoje o resolver devolve `UNRESOLVED_NOT_FOUND` ou `UNRESOLVED_AMBIGUOUS`, e o destino desses registros fica para a camada de transformação (`src/transform/`, adiada).
 
-O limiar de distancia precisa ser escolhido e justificado quando a
-confirmacao por coordenada for implementada, e os casos medidos aqui
-mostram que ele nao pode ser pequeno: as estacoes estao a 22,4 km do
-centroide do Rio de Janeiro e a 17,4 km do de Porto Alegre, os
-municipios corretos. Um limiar que funcione para municipios grandes
-tambem aceita municipios vizinhos inteiros, e por isso a coordenada so
-confirma um candidato vindo do nome, nunca escolhe entre vizinhos.
+Preciso escolher e justificar o limiar de distância quando implementar a confirmação por coordenada. Os casos medidos aqui mostram que ele não pode ser pequeno: as estações estão a 22,4 km do centroide do Rio de Janeiro e a 17,4 km do de Porto Alegre, que são os municípios corretos. Um limiar que funcione para municípios grandes também aceita municípios vizinhos inteiros, e por isso a coordenada só confirma um candidato vindo do nome e nunca escolhe entre vizinhos.
 
-Gatilho de revisao: a quarentena passar das 60 estacoes medidas aqui,
-ou a entrada de uma fonte identificada so por coordenada em regiao
-metropolitana (por exemplo, mais estacoes de qualidade do ar). Nesse
-ponto a Opcao D deixa de ser desproporcional, e a malha territorial do
-IBGE deve substituir o centroide.
+Gatilho de revisão: a quarentena passar das 60 estações medidas aqui, ou a entrada de uma fonte identificada só por coordenada em região metropolitana (por exemplo, mais estações de qualidade do ar). Nesse ponto a Opção D deixa de ser desproporcional, e a malha territorial do IBGE deve substituir o centroide.
