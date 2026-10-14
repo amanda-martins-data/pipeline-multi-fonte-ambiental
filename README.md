@@ -1,5 +1,7 @@
 # Pipeline Multi-Fonte Ambiental
 
+[![CI](https://github.com/amanda-martins-data/pipeline-multi-fonte-ambiental/actions/workflows/ci.yml/badge.svg)](https://github.com/amanda-martins-data/pipeline-multi-fonte-ambiental/actions/workflows/ci.yml)
+
 Integração de fontes públicas brasileiras heterogêneas: dados meteorológicos do INMET, qualidade do ar da CETESB (via OpenAQ) e a tabela de municípios do IBGE. O foco é o problema que mais consome tempo em engenharia de dados: **dados reais, sujos, em volume, e chaves que não casam**.
 
 Projeto 13 de uma série que documenta minha transição de Analista de Dados para Arquitetura de Dados. Veja o [perfil completo](https://github.com/amanda-martins-data).
